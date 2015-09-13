@@ -54,14 +54,3 @@ for x in cats[1:]: #Connects the properties in the same category
 for x in llines[1:]: #Connects the inodes to their respective pnodes
     l = [dic[y] for y in x[1:]]
     dic[x[0]].connected_pnodes = dic[x[0]].connected_pnodes + l
-
-
-
-
-
-#x = pnode('dude')
-#y = pnode('what')
-#x.connect(y)
-#print(x.connected_pnodes)
-
-
