@@ -11,11 +11,9 @@ resting_value = .1
 m = -0.2
 M = 1.0
 
+
 class node():   # Will be the superclass of inode and pnode
-    def __init__(self):
-        None
-class inode(node):
-    def __init__(self,name,category):
+    def __init__(self, name, category):
         self.name = name
         self.category = category
         self.connected_enodes = []
@@ -24,11 +22,8 @@ class inode(node):
         self.probe_input=0
         self.input = 0
         self.effect = 0
-    def connect(self,*other):
-        for x in other:
-            self.connected_pnodes.append(x)
 
-    def update_act(self, past = None):
+    def update_act(self):
         eInput = 0
         for node in self.connected_enodes:
             eInput += node.effect
@@ -42,17 +37,15 @@ class inode(node):
             self.effect = (self.effect-m)*self.input
         self.effect -= decay_rate*(self.effect-resting_value)
 
-class pnode(node):
 
-    def __init__(self,name,category):
-        self.name = name
-        self.category = category
-        self.connected_enodes = []
-        self.connected_inodes = []
-        self.resting_value = resting_value
-        self.probe_input=0
-        self.input = 0
-        self.effect = 0
+class inode(node):
+
+    def connect(self, *other):
+        for x in other:
+            self.connected_pnodes.append(x)
+
+
+class pnode(node):
 
     def connect(self, *other):
         for x in other:
@@ -60,23 +53,6 @@ class pnode(node):
                 self.connected_enodes.append(x)
             elif isinstance(x, pnode):
                 self.connected_inodes.append(x)
-
-    def update_act(self, past = None):
-        eInput = 0
-        for node in self.connected_enodes:
-            eInput += node.effect
-        iInput = 0
-        for node in self.connected_inodes:
-            iInput -= node.effect
-        self.input = self.probe_input + (ex_ia*eInput) + (in_ia*iInput)
-        if self.input > 0:
-            self.effect = (M-self.effect)*self.input
-        else:
-            self.effect = (self.effect-m)*self.input
-        self.effect -= decay_rate*(self.effect-resting_value)
-
-
-
 
 llines = [x.split(' ') for x in lines]
 dic = {}
