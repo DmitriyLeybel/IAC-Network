@@ -1,6 +1,3 @@
-
-
-
 class node():   # Will be the superclass of inode and pnode
 
     ex_ia = .05
@@ -26,11 +23,12 @@ class node():   # Will be the superclass of inode and pnode
             eInput += node.effect
         iInput = 0
         for node in self.connected_inodes:
-            iInput -= node.effect
-        self.input = self.probe_input + (node.ex_ia*eInput) + (node.in_ia*iInput)
+            iInput += node.effect
+        self.input = self.probe_input + (node.ex_ia*eInput) - (node.in_ia*iInput)
+
         if self.input > 0:
             self.effect = (node.M-self.effect)*self.input
-        else:
+        elif self.input < 0:
             self.effect = (self.effect-node.m)*self.input
         self.effect -= node.decay_rate*(self.effect-node.resting_value)
 
@@ -52,13 +50,12 @@ class pnode(node):
                 self.connected_inodes.append(x)
 
 
-class build():
+class build():  # Used to create the nodal structure
     g = open("ginfo.txt").read()
     lines = g.splitlines()
     cats = lines[0].split(' ')
-    dProbe_input = .2
 
-    def compose(self):
+    def compose(self): # Is run on a build object to create the dictionary containing the nodes and their connective information
 
         llines = [x.split(' ') for x in build.lines]
         dic = {}
@@ -84,13 +81,26 @@ class build():
             if isinstance(dic[x],inode):
                 for y in dic[x].connected_enodes:
                     y.connected_enodes.append(dic[x])
+
         inodelist = []
+
         for x in dic:   # Connects instances to the other instances
             if isinstance(dic[x], inode):
                 inodelist.append(dic[x])
         for x in dic:
             if isinstance(dic[x], inode):
                 dic[x].connected_inodes = inodelist
+
+        for x in dic:   # Removes pnodes from their respective inode and enode lists
+            if type(dic[x]) == pnode:
+                dic[x].connected_inodes.remove(dic[x])
+            f = []
+            if type(dic[x]) == inode:
+                for y in dic:
+                    if type(dic[y]) == inode:
+                        if dic[x] != dic[y]:
+                            f.append(dic[y])
+                dic[x].connected_inodes = f
         self.dic=dic
 
 
@@ -115,5 +125,3 @@ class network():
             binding = '{0}: {1} \n'.format(strnode,effect)
             s = s + binding
         print(s)
-
-
