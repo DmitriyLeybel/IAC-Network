@@ -113,8 +113,8 @@ class network():
         for strnode in strnodes:
             self.dic[strnode].probe_input = .2
 
-    def activate(self, epochs=200):  # Sends the activation through the network
-        for x in range(0,epochs):
+    def update(self, iterations=200):  # Sends the activation through the network
+        for x in range(0,iterations):
             for node in self.dic:
                 self.dic[node].update_act()
 
