@@ -33,6 +33,7 @@ class node():   # Will be the superclass of inode and pnode
         self.effect -= node.decay_rate*(self.effect-node.resting_value)
 
 
+
 class inode(node):
 
     def connect(self, *other):
@@ -113,10 +114,13 @@ class network():
         for strnode in strnodes:
             self.dic[strnode].probe_input = .2
 
-    def activate(self, epochs=200):  # Sends the activation through the network
+    def activate(self, epochs=200, debug=0, dname=''):  # Sends the activation through the network
         for x in range(0,epochs):
             for node in self.dic:
                 self.dic[node].update_act()
+                if debug == 1:
+                    if self.dic[node].name == dname:
+                        print(self.dic[node].effect)
 
     def check(self, *strnodes):  # Takes arguments as strings of instances or properties and outputs their respective effects
         s = ''
