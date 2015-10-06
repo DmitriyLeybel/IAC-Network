@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import scipy.spatial as sps
+from random import *
 
 class binaryWord:
 
@@ -55,3 +56,33 @@ class network:
                 for z,j in zip(x, range(len(x))):
                     self.wMatrix[i,j] += (2*int(x.word[i])-1)*(2*int(x.word[j])-1)
         np.fill_diagonal(self.wMatrix, 0)
+
+    def activateInitial(self, initial):     # Activates the network at the given initial state and runs it until there is no more change, then outputs the final state
+        init = list(str(initial))
+        init = list(map(int, init))
+        while True:
+            change = 0
+            rList = list(range(len(initial)))
+            shuffle(rList)
+            for x in rList:
+                if np.dot(init,self.wMatrix[:,x]) >=0:
+                    if init[x] != 1:
+                        init[x] = 1
+                        change += 1
+                elif np.dot(init,self.wMatrix[:,x]) <0:
+                    if init[x] != 0:
+                        init[x] = 0
+                        change += 1
+                print(init)
+            if change == 0:
+                break
+            print(change)
+        return init
+
+
+
+
+
+
+
+
