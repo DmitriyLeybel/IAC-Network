@@ -26,6 +26,7 @@ class stateList:
         self.sList = np.array([],dtype=binaryWord)
         for word in args:
             self.sList = np.append(self.sList,word)
+            self.lengthOfWord = len(word.word)
 
     def __iter__(self):
         for x in self.sList:
@@ -50,7 +51,7 @@ class network:
         self.sList = sList
         self.wMatrix = np.zeros([len(self.sList[0]),len(self.sList[0])])
 
-    def trainCorrelationMatrix(self, sList):    # Trains a network to the list of states provided within a stateList
+    def trainCorrelationMatrix(self):    # Trains a network to the list of states provided within a stateList
         for x in self.sList:
             for y,i in zip(x,range(len(x))):
                 for z,j in zip(x, range(len(x))):
@@ -60,6 +61,9 @@ class network:
     def activateInitial(self, initial):     # Activates the network at the given initial state and runs it until there is no more change, then outputs the final state
         init = list(str(initial))
         init = list(map(int, init))
+        if len(initial) < self.sList.lengthOfWord:
+            for x in range(self.sList.lengthOfWord-len(initial)):
+                init.append(0)
         while True:
             change = 0
             rList = list(range(len(initial)))
@@ -78,11 +82,3 @@ class network:
                 break
             print(change)
         return init
-
-
-
-
-
-
-
-
