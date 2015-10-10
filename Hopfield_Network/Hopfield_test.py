@@ -7,7 +7,7 @@ d = binaryWord(1101110001)
 z = stateList(a,c,b,d)
 n = network(z)
 n.trainCorrelationMatrix()
-q =n.activateInitial('10010001')
+q =n.activateInitial('1001101',it_num=50)
 
 print(n.wMatrix)
 print(q)
