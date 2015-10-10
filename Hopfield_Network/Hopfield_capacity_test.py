@@ -47,4 +47,45 @@ for w in sList3:
     final = n.activateInitial(''.join(w.word), it_num=50)
     wword = list(map(int,list(w.word)))
     dic3[int(sps.distance.hamming(final,wword)*len(final))] +=1
-    print(final, wword)
+
+
+
+f, axarr = plt.subplots(3, sharex=True)
+
+
+
+errornum = []
+errors = []
+for x in dic1:
+    errornum.append(x)
+    errors.append(dic1[x])
+errors = [x/sum(errors) for x in errors]
+
+axarr[0].set_title('Amount of learned states: 5')
+axarr[0].bar(errornum,errors)
+
+
+errornum = []
+errors = []
+for x in dic2:
+    errornum.append(x)
+    errors.append(dic2[x])
+errors = [x/sum(errors) for x in errors]
+
+axarr[1].set_title('Amount of learned states: 10')
+axarr[1].bar(errornum,errors)
+
+
+
+errornum = []
+errors = []
+for x in dic3:
+    errornum.append(x)
+    errors.append(dic3[x])
+errors = [x/sum(errors) for x in errors]
+
+axarr[2].set_title('Amount of learned states: 15')
+axarr[2].bar(errornum,errors)
+
+
+plt.show()
