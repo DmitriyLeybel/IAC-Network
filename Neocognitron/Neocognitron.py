@@ -8,6 +8,7 @@ class Unit:
         self.j = j
         self.incomingUnits = []
         self.output = 0
+        self.midIncomingUnit = 0
 
 
 class Array:
@@ -46,12 +47,23 @@ class Network:
             for x in array.arr.ravel():
                 if x.i == 0 and x.j == 0:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i:x.i+2,x.j:x.j+2].ravel().tolist()
+                    x.midIncomingUnit = 0
                 elif x.i == 0:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i:x.i+2,x.j-1:x.j+2].ravel().tolist()
+                    x.midIncomingUnit = 1
                 elif x.j == 0:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i-1:x.i+2,x.j:x.j+2].ravel().tolist()
+                    x.midIncomingUnit = 2
                 else:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i-1:x.i+2,x.j-1:x.j+2].ravel().tolist()
+                    if x.i and x.j ==19:
+                        x.midIncomingUnit == 3
+                    elif x.i == 19:
+                        x.midIncomingUnit == 4
+                    elif x.j == 19:
+                        x.midIncomingUnit == 3
+
+
                 x.incomingUnits = [(u,0) for u in x.incomingUnits ]
 
     def defineInput(self, array):
@@ -63,22 +75,26 @@ class Network:
                 e = sum([n[0].output*n[1] for n in u.incomingUnits])
                 if e > 0:
                     u.output = e
+                setOutput = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
                 for iu in range(len(u.incomingUnits)):
-                    u.incomingUnits[iu]=(u.incomingUnits[iu][0],u.incomingUnits[iu][0].output)
+                    u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutput)
 
-    def arrayVisualize(self,array):
-
-        ph = np.empty(array.shape)
-        for i in range(array.shape[0]):
-            for j in range(array.shape[1]):
-                ph[i,j]= array[i,j].output
-
-        img = toimage(ph)
-        plt.imshow(img)
+    def arrayVisualizeS1(self):
+        for a,n in zip(self.S1.arrays,range(12)):
+            array = a.arr
+            ph = np.empty(array.shape)
+            for i in range(array.shape[0]):
+                for j in range(array.shape[1]):
+                    ph[i,j]= array[i,j].output
+                    img = toimage(ph)
+            plt.imshow(img)
+            plt.subplot(4,3,n+1)
         plt.show()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     n = Network()
     n.connectC0S1()
-    print(n.S1.arrays[0].arr[0,0].incomingUnits)
+    n.defineInput(np.random.random_sample((19,19))+1)
     n.fire()
+    print(n.S1.arrays[0].arr[0,0].incomingUnits)     # Example that inspects the incoming units of the first unit of the first array of the S1 layer
+    n.arrayVisualizeS1()
