@@ -76,11 +76,11 @@ class Network:
                 e = sum([n[0].output*n[1] for n in u.incomingUnits])
                 if e > 0:
                     u.output = e
-                setOutputw = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
-                for iu in range(len(u.incomingUnits)):
-                    u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutputw)
                 if train == True:
-                    u.output = 0
+                    setOutputw = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
+                    for iu in range(len(u.incomingUnits)):
+                        u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutputw)
+                        u.output = 0
 
     def arrayVisualizeS1(self):
         for a,n in zip(self.S1.arrays,range(12)):
