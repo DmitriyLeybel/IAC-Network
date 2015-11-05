@@ -57,11 +57,11 @@ class Network:
                 else:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i-1:x.i+2,x.j-1:x.j+2].ravel().tolist()
                     if x.i and x.j ==19:
-                        x.midIncomingUnit == 3
+                        x.midIncomingUnit = 3
                     elif x.i == 19:
-                        x.midIncomingUnit == 4
+                        x.midIncomingUnit = 4
                     elif x.j == 19:
-                        x.midIncomingUnit == 3
+                        x.midIncomingUnit = 3
 
 
                 x.incomingUnits = [(u,0) for u in x.incomingUnits ]
@@ -69,15 +69,18 @@ class Network:
     def defineInput(self, array):
         self.C0.arrays[0].arr = array
 
-    def fire(self):
+
+    def fire(self, train = False):
         for arr in self.S1.arrays:
             for u in arr.arr.flat:
                 e = sum([n[0].output*n[1] for n in u.incomingUnits])
                 if e > 0:
                     u.output = e
-                setOutput = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
+                setOutputw = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
                 for iu in range(len(u.incomingUnits)):
-                    u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutput)
+                    u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutputw)
+                if train == True:
+                    u.output = 0
 
     def arrayVisualizeS1(self):
         for a,n in zip(self.S1.arrays,range(12)):
@@ -89,12 +92,17 @@ class Network:
                     img = toimage(ph)
             plt.imshow(img)
             plt.subplot(4,3,n+1)
+        print(ph)
         plt.show()
 
 if __name__ == "__main__":
     n = Network()
     n.connectC0S1()
-    n.defineInput(np.random.random_sample((19,19))+1)
+    ran = np.random.random_sample([19,19])
+    n.defineInput(ran)
+    n.fire(train = True)
+    ran[:,-5:18] = 0
+    n.defineInput(ran)
     n.fire()
     print(n.S1.arrays[0].arr[0,0].incomingUnits)     # Example that inspects the incoming units of the first unit of the first array of the S1 layer
     n.arrayVisualizeS1()
