@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.misc import toimage
+import tkinter.messagebox as tkmb
 
 class Unit:
     def __init__(self,i,j,isInput=False):
@@ -40,7 +41,7 @@ class Network:
     def __init__(self):
         self.C0 = Layer('C0')
         self.S1 = Layer('S1')
-        self.alpha = 1
+        self.alpha = .25
 
     def connectC0S1(self):
         for array in self.S1.arrays:
@@ -67,7 +68,8 @@ class Network:
                 x.incomingUnits = [(u,0) for u in x.incomingUnits ]
 
     def defineInput(self, array):
-        self.C0.arrays[0].arr = array
+        for x,y in zip(self.C0.arrays[0].arr.flat,range(self.C0.arrays[0].arr.size)):
+            x.output = array.flat[y]
 
 
     def fire(self, train = False):
@@ -90,10 +92,21 @@ class Network:
                 for j in range(array.shape[1]):
                     ph[i,j]= array[i,j].output
                     img = toimage(ph)
+            plt.subplot(5,3,n+1)
             plt.imshow(img)
-            plt.subplot(4,3,n+1)
-        print(ph)
-        plt.show()
+            plt.title('S1_{0}'.format(n+1))
+        ph = np.empty(self.C0.arrays[0].arr.shape)
+        for i in range(self.C0.arrays[0].arr.shape[0]):
+                for j in range(self.C0.arrays[0].arr.shape[1]):
+                    ph[i,j]= self.C0.arrays[0].arr[i,j].output
+                    img = toimage(ph)
+        plt.subplot(5,3,13)
+        plt.imshow(img)
+        # plt.subplot(5,3,13)
+        plt.title('C0')
+        plt.tight_layout()
+        plt.draw()
+
 
 if __name__ == "__main__":
     n = Network()
@@ -105,4 +118,5 @@ if __name__ == "__main__":
     n.defineInput(ran)
     n.fire()
     print(n.S1.arrays[0].arr[0,0].incomingUnits)     # Example that inspects the incoming units of the first unit of the first array of the S1 layer
+
     n.arrayVisualizeS1()
