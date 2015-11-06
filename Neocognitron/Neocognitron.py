@@ -118,5 +118,5 @@ if __name__ == "__main__":
     n.defineInput(ran)
     n.fire()
     print(n.S1.arrays[0].arr[0,0].incomingUnits)     # Example that inspects the incoming units of the first unit of the first array of the S1 layer
-
     n.arrayVisualizeS1()
+    plt.show()
