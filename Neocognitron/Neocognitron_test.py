@@ -12,3 +12,15 @@ def feed(arrayList):
         n.arrayVisualizeS1()
         input('Input Necessary')
         plt.show()
+
+
+n = Network()
+n.connectC0S1()
+testInput = np.random.randn(19,19)
+n.defineInput(testInput)
+n.fire(train=True)
+testInput[:,-5:18] = 1
+n.defineInput(testInput)
+n.fire()
+n.arrayVisualizeS1()
+plt.show()

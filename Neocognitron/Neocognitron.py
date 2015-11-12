@@ -27,7 +27,7 @@ class Layer:
             for i in range(19):
                 for j in range(19):
                     self.arrays[0].arr[i,j]= Unit(i,j)
-        if self.lname == 'S1':
+        elif self.lname == 'S1':
             self.arrays=[]
             for n in range(12):
                 a = Array(n,19)
@@ -35,12 +35,19 @@ class Layer:
                     for j in range(19):
                         a.arr[i,j]= Unit(i,j)
                 self.arrays.append(a)
+        elif self.lname == 'V0':
+            self.arrays = [Array(1,19)]
+            for i in range(19):
+                for j in range(19):
+                    self.arrays[0].arr[i,j]= Unit(i,j)
+
 
 
 class Network:
     def __init__(self):
         self.C0 = Layer('C0')
         self.S1 = Layer('S1')
+        self.V0 = Layer('V0')
         self.alpha = .25
 
     def connectC0S1(self):
@@ -66,6 +73,33 @@ class Network:
 
 
                 x.incomingUnits = [(u,0) for u in x.incomingUnits ]
+    def connectV(self): # Still needs to connect V0 to S1
+        for x in self.V0.arrays[0].arr.ravel():
+                if x.i == 0 and x.j == 0:
+                    x.incomingUnits = self.C0.arrays[0].arr[x.i:x.i+2,x.j:x.j+2].ravel().tolist()
+                    x.midIncomingUnit = 0
+                elif x.i == 0:
+                    x.incomingUnits = self.C0.arrays[0].arr[x.i:x.i+2,x.j-1:x.j+2].ravel().tolist()
+                    x.midIncomingUnit = 1
+                elif x.j == 0:
+                    x.incomingUnits = self.C0.arrays[0].arr[x.i-1:x.i+2,x.j:x.j+2].ravel().tolist()
+                    x.midIncomingUnit = 2
+                else:
+                    x.incomingUnits = self.C0.arrays[0].arr[x.i-1:x.i+2,x.j-1:x.j+2].ravel().tolist()
+                    if x.i and x.j ==19:
+                        x.midIncomingUnit = 3
+                    elif x.i == 19:
+                        x.midIncomingUnit = 4
+                    elif x.j == 19:
+                        x.midIncomingUnit = 3
+        for x in self.V0.arrays[0].arr.ravel():
+            for iu,y in zip(x.incomingUnits, range(len(x.incomingUnits))):
+                if x.i == iu.i and x.j == iu.j:
+                    x.incomingUnits[y] = (iu,1)
+                else:
+                    x.incomingUnits[y] = (iu, 1/3)
+
+
 
     def defineInput(self, array):
         for x,y in zip(self.C0.arrays[0].arr.flat,range(self.C0.arrays[0].arr.size)):
