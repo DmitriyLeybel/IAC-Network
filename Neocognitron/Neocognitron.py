@@ -10,6 +10,7 @@ class Unit:
         self.incomingUnits = []
         self.output = 0
         self.midIncomingUnit = 0
+        self.incomingInhibitory = ()
 
 
 class Array:
@@ -49,6 +50,7 @@ class Network:
         self.S1 = Layer('S1')
         self.V0 = Layer('V0')
         self.alpha = .25
+        self.v = 0
 
     def connectC0S1(self):
         for array in self.S1.arrays:
@@ -98,6 +100,11 @@ class Network:
                     x.incomingUnits[y] = (iu,1)
                 else:
                     x.incomingUnits[y] = (iu, 1/3)
+        for l in self.S1.arrays:
+            for a in l.arr.ravel():
+                loc = np.where(l.arr==a)
+                a.incomingInhibitory = (self.V0.arrays[0].arr[loc[0],loc[1]][0], 0)
+
 
 
 
@@ -107,16 +114,29 @@ class Network:
 
 
     def fire(self, train = False):
-        for arr in self.S1.arrays:
+        r = 0
+        for iu in self.V0.arrays[0].arr.ravel():
+            for cu in iu.incomingUnits:
+                r += cu[0].output*cu[1]
+        self.v = r
+        for arr,ind in zip(self.S1.arrays,range(len(self.S1.arrays))):
             for u in arr.arr.flat:
                 e = sum([n[0].output*n[1] for n in u.incomingUnits])
                 if e > 0:
-                    u.output = e
+                    loc = np.where(arr.arr==u)
+
+                    u.output = ((1+e)/(1+self.v*u.incomingInhibitory[1]))-1
+                    # u.output = e
+
                 if train == True:
                     setOutputw = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
                     for iu in range(len(u.incomingUnits)):
                         u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutputw)
                         u.output = 0
+            if train == True:
+                setOutputw = self.alpha * arr.arr[9,9].incomingUnits[arr.arr[9,9].midIncomingUnit][0].output
+                for set in arr.arr.ravel():
+                    set.incomingInhibitory = (set.incomingInhibitory, setOutputw)
 
     def arrayVisualizeS1(self):
         for a,n in zip(self.S1.arrays,range(12)):
@@ -144,12 +164,32 @@ class Network:
 
 if __name__ == "__main__":
     n = Network()
+    A = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0],
+ [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
+ [0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0],
+ [0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+ [0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0],
+ [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+ [0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0],
+ [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+ [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
+ [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0],
+ [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+ [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0]])
     n.connectC0S1()
+    n.connectV()
     ran = np.random.random_sample([19,19])
-    n.defineInput(ran)
+    n.defineInput(A)
     n.fire(train = True)
     ran[:,-5:18] = 0
-    n.defineInput(ran)
+    n.defineInput(A)
     n.fire()
     print(n.S1.arrays[0].arr[0,0].incomingUnits)     # Example that inspects the incoming units of the first unit of the first array of the S1 layer
     n.arrayVisualizeS1()
