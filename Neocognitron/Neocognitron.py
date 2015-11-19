@@ -4,24 +4,24 @@ from scipy.misc import toimage
 import tkinter.messagebox as tkmb
 
 class Unit:
-    def __init__(self,i,j,isInput=False):
+    def __init__(self,i,j,isInput=False):   # Creates a unit with a given i,j location within an array
         self.i = i
         self.j = j
-        self.incomingUnits = []
+        self.incomingUnits = [] # Initiates the list of units sending their signal forward to this unit
         self.output = 0
-        self.midIncomingUnit = 0
+        self.midIncomingUnit = 0    # Used as a helper to assign windows
         self.incomingInhibitory = ()
 
 
 class Array:
-    def __init__(self, anum, size):
+    def __init__(self, anum, size): # Defines a square array of a specified size and # designation
         self.arrayNum = anum
         self.arr = np.empty([size,size],dtype='O')
     def buildArray(self):
         pass
 
 class Layer:
-    def __init__(self, lname):
+    def __init__(self, lname): # Builds array based on the name given
         self.lname = lname    # e.g S1, C0, C1...
         if self.lname == 'C0':
             self.arrays = [Array(1,19)]
@@ -53,8 +53,8 @@ class Network:
         self.v = 0
 
     def connectC0S1(self):
-        for array in self.S1.arrays:
-            for x in array.arr.ravel():
+        for array in self.S1.arrays: # Loops over the S1 arrays
+            for x in array.arr.ravel(): # For every unit of every array of S1, it connects a window of input units
                 if x.i == 0 and x.j == 0:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i:x.i+2,x.j:x.j+2].ravel().tolist()
                     x.midIncomingUnit = 0
@@ -76,7 +76,7 @@ class Network:
 
                 x.incomingUnits = [(u,0) for u in x.incomingUnits ]
     def connectV(self): # Still needs to connect V0 to S1
-        for x in self.V0.arrays[0].arr.ravel():
+        for x in self.V0.arrays[0].arr.ravel(): # Connects inhibitory array to the input array with fixed weights
                 if x.i == 0 and x.j == 0:
                     x.incomingUnits = self.C0.arrays[0].arr[x.i:x.i+2,x.j:x.j+2].ravel().tolist()
                     x.midIncomingUnit = 0
@@ -94,7 +94,7 @@ class Network:
                         x.midIncomingUnit = 4
                     elif x.j == 19:
                         x.midIncomingUnit = 3
-        for x in self.V0.arrays[0].arr.ravel():
+        for x in self.V0.arrays[0].arr.ravel(): # Sets the fixed weights of the input and inhibitory layer
             for iu,y in zip(x.incomingUnits, range(len(x.incomingUnits))):
                 if x.i == iu.i and x.j == iu.j:
                     x.incomingUnits[y] = (iu,1)
@@ -114,32 +114,32 @@ class Network:
 
 
     def fire(self, train = False):
-        r = 0
+        r = 0   # Obtains the v value for the inhibitory calculations
         for iu in self.V0.arrays[0].arr.ravel():
             for cu in iu.incomingUnits:
                 r += cu[0].output*cu[1]
         self.v = r
-        for arr,ind in zip(self.S1.arrays,range(len(self.S1.arrays))):
+        for arr,ind in zip(self.S1.arrays,range(len(self.S1.arrays))):  # Loops through the S1 arrays
             for u in arr.arr.flat:
-                e = sum([n[0].output*n[1] for n in u.incomingUnits])
+                e = sum([n[0].output*n[1] for n in u.incomingUnits])    # Obtains the sums of a unit's incoming values
                 if e > 0:
                     loc = np.where(arr.arr==u)
 
                     u.output = ((1+e)/(1+self.v*u.incomingInhibitory[1]))-1
                     # u.output = e
 
-                if train == True:
+                if train == True:   # Trains the weights between the S1 and C0 layers
                     setOutputw = u.incomingUnits[u.midIncomingUnit][0].output * self.alpha
                     for iu in range(len(u.incomingUnits)):
                         u.incomingUnits[iu]=(u.incomingUnits[iu][0],setOutputw)
                         u.output = 0
-            if train == True:
+            if train == True:   # Trains the connections between the inhibitory layer and the S1 layer
                 setOutputw = self.alpha * arr.arr[9,9].incomingUnits[arr.arr[9,9].midIncomingUnit][0].output
                 for set in arr.arr.ravel():
                     set.incomingInhibitory = (set.incomingInhibitory, setOutputw)
 
-    def arrayVisualizeS1(self):
-        for a,n in zip(self.S1.arrays,range(12)):
+    def arrayVisualizeS1(self): # Used to plot all of the arrays
+        for a,n in zip(self.S1.arrays,range(12)): # Plots all of the S1 arrays
             array = a.arr
             ph = np.empty(array.shape)
             for i in range(array.shape[0]):
@@ -150,10 +150,15 @@ class Network:
             plt.imshow(img)
             plt.title('S1_{0}'.format(n+1))
         ph = np.empty(self.C0.arrays[0].arr.shape)
-        for i in range(self.C0.arrays[0].arr.shape[0]):
+        for i in range(self.C0.arrays[0].arr.shape[0]): # Plots the input array
                 for j in range(self.C0.arrays[0].arr.shape[1]):
                     ph[i,j]= self.C0.arrays[0].arr[i,j].output
                     img = toimage(ph)
+        plt.subplot(5,3,13)
+        for i in range(self.V0.arrays[0].arr.shape[0]): # Plots the inhibitory array
+            for j in range(self.V0.arrays[0].arr.shape[1]):
+                ph[i,j]= self.V0.arrays[0].arr[i,j].output
+                img = toimage(ph)
         plt.subplot(5,3,13)
         plt.imshow(img)
         # plt.subplot(5,3,13)
