@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Network:
@@ -8,13 +9,13 @@ class Network:
         self.input = np.empty(sizeInput)
         self.output = np.empty(sizeOutput)
         # Weight matrices
-        self.inputHidden = np.random.rand(sizeInput,sizeHidden)
-        self.hiddenOutput = np.random.rand(sizeHidden, sizeOutput)
+        self.inputHidden = np.random.rand(sizeInput,sizeHidden)-.5
+        self.hiddenOutput = np.random.rand(sizeHidden, sizeOutput)-.5
 
         self.learningRate = learningRate
         # Bias weight arrays(separate from the weight matrices)
-        self.hiddenBias = np.random.rand(sizeHidden)
-        self.outputBias = np.random.rand(sizeOutput)
+        self.hiddenBias = np.random.rand(sizeHidden)-.5
+        self.outputBias = np.random.rand(sizeOutput)-.5
 
         self.target = []
         self.targetSetList = []
@@ -130,6 +131,17 @@ if __name__ == '__main__':
     print(n.input,'-->',n.output)
     print(n.errorCalc())
     print('Total Error Value =',n.totalErrorVal)
+
+    # Plots the error(from the training) logs of the sets
+    plt.subplot(221)
+    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[0])
+    plt.subplot(222)
+    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[1])
+    plt.subplot(223)
+    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[2])
+    plt.subplot(224)
+    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[3])
+    plt.show()
     
     # n.assignTarget([0])
     # n.assignInput([1,0,1,1,0])
