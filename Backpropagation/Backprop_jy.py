@@ -95,21 +95,22 @@ class Network:
 
     def trainSets(self, listOfSets, cycles):
         # Every set will be composed of a tuple, with the first value being the input and the seoond, the target.
-        for Set in listOfSets:
-            self.assignInput(Set[0])
-            self.assignTarget(Set[1])
-            # Resets the error log, so you can reuse the variable
-            self.errorLog = []
-            n.fire(cycles)
-            self.totalErrorLog.append((n.target,n.output))
-            self.errorLogList.append(self.errorLog)
-        self.totalError()
-        return self.totalErrorVal
+        for iter in range(cycles):
+            for Set in listOfSets:
+                self.assignInput(Set[0])
+                self.assignTarget(Set[1])
+                # Resets the error log, so you can reuse the variable
+                #self.errorLog = []
+                self.fire(1)
+                #self.totalErrorLog.append((n.target,n.output))
+               # self.errorLogList.append(self.errorLog)
+            #self.totalError()
+        #return self.totalErrorVal
 
 
 if __name__ == '__main__':
-    n = Network(2,1,3,.9)
-    n.trainSets([([0,0],[0]),([0,1],[1]),([1,0],[1]),([1,1],[0])],10000)
+    n = Network(2,1,4,.8)
+    n.trainSets([([0,0],[0]),([0,1],[1]),([1,0],[1]),([1,1],[0])],2000)
     # Prints the errors of the sets during training
     # for set,x in zip(n.errorLogList,range(4)):
     #     print('Set {0} Error List:{1}'.format(x+1,set))
@@ -129,19 +130,32 @@ if __name__ == '__main__':
     n.assignInput([1,1])
     n.feedForward()
     print(n.input,'-->',n.output)
-    print(n.errorCalc())
-    print('Total Error Value =',n.totalErrorVal)
+    # print(n.errorCalc())
+    # print('Total Error Value =',n.totalErrorVal)
 
     # Plots the error(from the training) logs of the sets
-    plt.subplot(221)
-    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[0])
-    plt.subplot(222)
-    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[1])
-    plt.subplot(223)
-    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[2])
-    plt.subplot(224)
-    plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[3])
-    plt.show()
+    # plt.subplot(221)
+    # plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[0])
+    # plt.subplot(222)
+    # plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[1])
+    # plt.subplot(223)
+    # plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[2])
+    # plt.subplot(224)
+    # plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[3])
+    # plt.show()
+
+    n.assignInput([1,1])
+    n.feedForward()
+    print(n.output)
+    n.assignInput([1,0])
+    n.feedForward()
+    print(n.output)
+    n.assignInput([0,1])
+    n.feedForward()
+    print(n.output)
+    n.assignInput([0,0])
+    n.feedForward()
+    print(n.output)
     
     # n.assignTarget([0])
     # n.assignInput([1,0,1,1,0])
