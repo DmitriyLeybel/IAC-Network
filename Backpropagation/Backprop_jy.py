@@ -71,16 +71,14 @@ class Network:
         self.hiddenBias += self.hiddenBiasCorrection
 
     def errorCalc(self):
-        error = np.sqrt(sum(np.square(self.target-self.output))/len(self.target))
+        error = np.square(self.target-self.output)
         return error
 
     def totalError(self):
         sumOfSquaredErrors = 0
-        for error in self.totalErrorLog:
-            sumOfSquaredErrors +=sum(np.square(error[0]-error[1]))
-        self.totalErrorVal = np.sqrt(sumOfSquaredErrors/len(self.totalErrorLog))
-
-
+        for error in self.errorLog:
+            sumOfSquaredErrors +=error
+        self.totalErrorVal = np.sqrt(sumOfSquaredErrors/len(self.errorLog))
 
     def fire(self,cycles):
         for x in range(cycles):
@@ -89,7 +87,7 @@ class Network:
             self.update()
             #if (x % 1000 == 0):
               #  print(self.errorCalc())
-            self.errorLog.append(self.errorCalc())
+
         self.feedForward()
         return self.output
 
@@ -99,22 +97,18 @@ class Network:
             for Set in listOfSets:
                 self.assignInput(Set[0])
                 self.assignTarget(Set[1])
-                # Resets the error log, so you can reuse the variable
-                #self.errorLog = []
                 self.fire(1)
-                #self.totalErrorLog.append((n.target,n.output))
-               # self.errorLogList.append(self.errorLog)
-            #self.totalError()
-        #return self.totalErrorVal
-
+                self.errorLog.append(self.errorCalc())
+            self.totalError()
+            self.errorLogList.append(self.totalErrorVal)
+            self.errorLog = []
 
 if __name__ == '__main__':
-    n = Network(2,1,4,.8)
-    n.trainSets([([0,0],[0]),([0,1],[1]),([1,0],[1]),([1,1],[0])],2000)
+    n = Network(2,1,4,.9)
+    n.trainSets([([0,0],[0]),([0,1],[1]),([1,0],[1]),([1,1],[0])],3000)
     # Prints the errors of the sets during training
     # for set,x in zip(n.errorLogList,range(4)):
     #     print('Set {0} Error List:{1}'.format(x+1,set))
-
     n.assignInput([0,0])
     n.feedForward()
     print(n.input,'-->',n.output)
@@ -130,9 +124,10 @@ if __name__ == '__main__':
     n.assignInput([1,1])
     n.feedForward()
     print(n.input,'-->',n.output)
+    plt.scatter(list(range(len(n.errorLogList))), n.errorLogList)
+    plt.show()
     # print(n.errorCalc())
     # print('Total Error Value =',n.totalErrorVal)
-
     # Plots the error(from the training) logs of the sets
     # plt.subplot(221)
     # plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[0])
@@ -143,20 +138,6 @@ if __name__ == '__main__':
     # plt.subplot(224)
     # plt.scatter(list(range(len(n.errorLogList[0]))),n.errorLogList[3])
     # plt.show()
-
-    n.assignInput([1,1])
-    n.feedForward()
-    print(n.output)
-    n.assignInput([1,0])
-    n.feedForward()
-    print(n.output)
-    n.assignInput([0,1])
-    n.feedForward()
-    print(n.output)
-    n.assignInput([0,0])
-    n.feedForward()
-    print(n.output)
-    
     # n.assignTarget([0])
     # n.assignInput([1,0,1,1,0])
     # n.assignTarget([1,0,1,0,0])
